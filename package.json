@@ -12,6 +12,7 @@
   "scripts": {
     "prebuild": "rm -rf dist",
     "build": "bun run ./bun-build.config.js",
+    "postbuild": "tsc --emitDeclarationOnly",
     "release": "standard-version",
     "release:patch": "npm run release --release-as patch",
     "release:minor": "npm run release --release-as minor",

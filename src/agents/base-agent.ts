@@ -2,9 +2,9 @@ import { OpenAI } from 'openai';
 import { sleep } from 'openai/core';
 import { Run } from 'openai/resources/beta/threads/runs/runs';
 
-import { Agent, AgentOptions, AgentProps } from '@/types/agent';
+import { Agent, AgentOptions, AgentProps } from '../types/agent';
 import { AgentFunction } from './function';
-import { GuardError } from '@/errors/guard-error';
+import { GuardError } from '../errors/guard-error';
 
 export class AgentOpenAI implements Agent {
   protected readonly props: AgentProps = {
@@ -16,9 +16,11 @@ export class AgentOpenAI implements Agent {
 
   openai: OpenAI;
 
-  private static guardOptions(opts: AgentOptions) {
-    const { agentId, poolingInterval } = opts;
-    GuardError.guard(!agentId, 'Agent ID is required');
+  private static guardProps(props: AgentProps) {
+    const { agentId, poolingInterval } = props;
+
+    const isAgentIdValid = typeof agentId === 'string' && agentId.length > 0;
+    GuardError.guard(isAgentIdValid, 'Agent ID is required');
 
     const isPoolingIntervalValid = !!poolingInterval && poolingInterval > 500;
     GuardError.guard(
@@ -37,7 +39,8 @@ export class AgentOpenAI implements Agent {
       this.props.functions.set(fn.name, fn);
     }
 
-    AgentOpenAI.guardOptions(opts);
+    AgentOpenAI.guardProps(this.props);
+
     this.openai = new OpenAI();
   }
 

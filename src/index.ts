@@ -1,3 +1,3 @@
-export * from '@/agents';
-export * from '@/types';
-export * from '@/errors';
+export { AgentFunction, AgentOpenAI } from './agents';
+export { Agent, AgentOptions, AgentProps } from './types';
+export { GuardError } from './errors';
