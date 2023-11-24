@@ -5,6 +5,7 @@
   "type": "module",
   "author": "Gabriel Silvestre <gabriel.h.silvestre11@gmail.com>",
   "license": "MIT",
+  "version": "0.1.0",
   "files": [
     "dist"
   ],
