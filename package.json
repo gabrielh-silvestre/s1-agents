@@ -1,11 +1,31 @@
 {
   "name": "s1-agents",
   "module": "src/index.ts",
+  "main": "dist/index.js",
   "type": "module",
+  "author": "Gabriel Silvestre <gabriel.h.silvestre11@gmail.com>",
+  "license": "MIT",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "prebuild": "rm -rf dist",
+    "build": "bun run ./bun-build.config.js",
+    "release": "standard-version",
+    "release:patch": "npm run release --release-as patch",
+    "release:minor": "npm run release --release-as minor",
+    "release:major": "npm run release --release-as major"
+  },
   "devDependencies": {
-    "bun-types": "latest"
+    "bun-types": "latest",
+    "standard-version": "^9.5.0",
+    "tsconfig-paths": "^4.2.0",
+    "typescript": "^5.3.2"
   },
   "peerDependencies": {
     "typescript": "^5.0.0"
+  },
+  "dependencies": {
+    "openai": "^4.20.0"
   }
 }
