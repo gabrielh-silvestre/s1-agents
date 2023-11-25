@@ -1,3 +1,4 @@
+import OpenAI from 'openai';
 import { AgentFunction } from '..';
 
 export type Agent = {
@@ -26,6 +27,7 @@ export type RequiredAgentOptions = {
  * If not provided, the default value is 2000ms.
  */
 export type OptionalAgentOptions = {
+  openai?: OpenAI;
   functions?: AgentFunction[];
   log?: boolean;
   poolingInterval?: number; // in milliseconds

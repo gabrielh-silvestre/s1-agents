@@ -1,0 +1,6 @@
+[test]
+root = "./__tests__/bun"
+preload = ["./__tests__/bun/setup.ts"]
+
+coverageSkipTestFiles = true
+coverageThreshold = { line = 0.9, function = 0.8 }

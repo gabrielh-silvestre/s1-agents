@@ -7,14 +7,13 @@ import { AgentFunction } from './function';
 import { GuardError } from '../errors/guard-error';
 
 export class AgentOpenAI implements Agent {
-  protected readonly props: AgentProps = {
+  protected readonly _props: AgentProps = {
     agentId: '',
+    openai: new OpenAI(),
     functions: new Map<string, AgentFunction>(),
     log: false,
     poolingInterval: 2000,
   };
-
-  openai: OpenAI;
 
   private static guardProps(props: AgentProps) {
     const { agentId, poolingInterval } = props;
@@ -27,21 +26,32 @@ export class AgentOpenAI implements Agent {
       isPoolingIntervalValid,
       'Pooling interval must be greater than 500ms'
     );
+
+    const isOpenAIValid =
+      !!props.openai && Object.keys(props.openai).length > 0;
+    GuardError.guard(isOpenAIValid, 'OpenAI instance is required');
   }
 
   constructor(opts: AgentOptions) {
-    this.props.agentId = opts.agentId;
-    this.props.log = opts.log ?? this.props.log;
-    this.props.poolingInterval =
-      opts.poolingInterval ?? this.props.poolingInterval;
+    this._props.agentId = opts.agentId;
+    this._props.log = opts.log ?? this._props.log;
+    this._props.poolingInterval =
+      opts.poolingInterval ?? this._props.poolingInterval;
+    this._props.openai = opts.openai ?? this._props.openai;
 
     for (const fn of opts.functions ?? []) {
-      this.props.functions.set(fn.name, fn);
+      this._props.functions.set(fn.name, fn);
     }
 
-    AgentOpenAI.guardProps(this.props);
+    AgentOpenAI.guardProps(this._props);
+  }
 
-    this.openai = new OpenAI();
+  get openai() {
+    return this._props.openai;
+  }
+
+  get props() {
+    return this._props;
   }
 
   protected async *treatAction(run: Run) {
@@ -56,7 +66,7 @@ export class AgentOpenAI implements Agent {
   }
 
   protected async executeFunction(name: string, args: object[]) {
-    const fn = this.props.functions.get(name);
+    const fn = this._props.functions.get(name);
     if (!fn) throw new Error(`Function ${name} not found`);
 
     return await fn.execute(args);
@@ -85,7 +95,7 @@ export class AgentOpenAI implements Agent {
       response.status === 'completed' ||
       response.status === 'failed';
     if (!isFinished) {
-      await sleep(2000);
+      await sleep(this._props.poolingInterval);
       return await this.poolingRun(threadId, runId);
     }
 
@@ -97,7 +107,7 @@ export class AgentOpenAI implements Agent {
 
   protected async createAndRunThread(content: string) {
     return await this.openai.beta.threads.createAndRun({
-      assistant_id: this.props.agentId,
+      assistant_id: this._props.agentId,
       thread: {
         messages: [{ role: 'user', content }],
       },
