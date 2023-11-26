@@ -5,6 +5,7 @@ import { Run } from 'openai/resources/beta/threads/runs/runs';
 import { Agent, AgentOptions, AgentProps } from '../types/agent';
 import { AgentFunction } from './function';
 import { GuardError } from '../errors/guard-error';
+import { InternalError } from 'src/errors';
 
 export class AgentOpenAI implements Agent {
   protected readonly _props: AgentProps = {
@@ -18,18 +19,32 @@ export class AgentOpenAI implements Agent {
   private static guardProps(props: AgentProps) {
     const { agentId, poolingInterval } = props;
 
-    const isAgentIdValid = typeof agentId === 'string' && agentId.length > 0;
-    GuardError.guard(isAgentIdValid, 'Agent ID is required');
+    InternalError.notEmpty(agentId, 'Agent ID is required');
+    InternalError.notEmptyObject(props.openai, 'OpenAI instance is required');
 
     const isPoolingIntervalValid = !!poolingInterval && poolingInterval > 500;
-    GuardError.guard(
+    InternalError.guard(
       isPoolingIntervalValid,
       'Pooling interval must be greater than 500ms'
     );
+  }
 
-    const isOpenAIValid =
-      !!props.openai && Object.keys(props.openai).length > 0;
-    GuardError.guard(isOpenAIValid, 'OpenAI instance is required');
+  private guardFunctions({ functions }: AgentOptions) {
+    const hasAnyFunction = functions?.length > 0;
+    if (!hasAnyFunction) return;
+
+    InternalError.duplicatedArray(
+      functions?.map((fn) => fn.name),
+      'Functions must have unique names'
+    );
+
+    const hasInvalidFunction = functions?.find(
+      (fn) => !(fn instanceof AgentFunction)
+    );
+    InternalError.guard(
+      !!hasInvalidFunction,
+      `Function "${hasInvalidFunction?.name}" is invalid`
+    );
   }
 
   constructor(opts: AgentOptions) {
@@ -39,7 +54,10 @@ export class AgentOpenAI implements Agent {
       opts.poolingInterval ?? this._props.poolingInterval;
     this._props.openai = opts.openai ?? this._props.openai;
 
+    this.guardFunctions(opts);
+
     for (const fn of opts.functions ?? []) {
+      if (!fn) continue;
       this._props.functions.set(fn.name, fn);
     }
 
@@ -67,7 +85,7 @@ export class AgentOpenAI implements Agent {
 
   protected async executeFunction(name: string, args: object[]) {
     const fn = this._props.functions.get(name);
-    if (!fn) throw new Error(`Function ${name} not found`);
+    if (!fn) return null;
 
     return await fn.execute(args);
   }

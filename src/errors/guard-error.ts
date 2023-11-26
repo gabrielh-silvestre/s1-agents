@@ -3,8 +3,4 @@ export class GuardError extends Error {
     super(message);
     this.name = 'GuardError';
   }
-
-  static guard(condition: boolean, message: string) {
-    if (!condition) throw new GuardError(message);
-  }
 }

@@ -1,18 +1,9 @@
-import {
-  Mock,
-  afterEach,
-  beforeEach,
-  describe,
-  expect,
-  it,
-  spyOn,
-} from 'bun:test';
+import { Mock, beforeEach, describe, expect, it, spyOn } from 'bun:test';
 
 import { AgentOpenAI } from 'src/agents/base-agent';
 import { GuardError } from 'src/errors/guard-error';
 
 import {
-  MESSAGE_LIST_RESPONSE,
   OUTPUT_TOOL_RESPONSE,
   RETRIEVE_RUN_RESPONSE,
   mockFunction,
@@ -67,7 +58,7 @@ describe('[Unit] test for AngetOpenAI', () => {
     agent = new TestAgent({
       agentId: 'agent-123',
       openai: mockedOpenAI as any,
-      functions: [mockedFunction],
+      functions: [],
     });
 
     spyOpenaiCreateAndRun = spyOn(agent.openai.beta.threads, 'createAndRun');
@@ -91,6 +82,11 @@ describe('[Unit] test for AngetOpenAI', () => {
     ['agentId', 'undefined', undefined],
     ['openai', 'empty', {}],
     ['poolingInterval', 'zero', 0],
+    [
+      'functions',
+      'duplicated',
+      [mockedFunction, mockedFunction, mockedFunction],
+    ],
   ])('should throw an error when %s prop is %s', (prop, _, val) => {
     try {
       const options = {
@@ -163,7 +159,20 @@ describe('[Unit] test for AngetOpenAI', () => {
   });
 
   it('should execute a function', async () => {
-    await agent.executeFunction('test', { name: 'John Doe', age: 30 });
+    const localAgent = new TestAgent({
+      agentId: 'agent-123',
+      openai: mockedOpenAI as any,
+      functions: [mockedFunction],
+    });
+
+    try {
+      await localAgent.executeFunction(mockedFunction.name, {
+        name: 'John Doe',
+        age: 30,
+      });
+    } catch (error: any) {
+      console.log('error', error);
+    }
 
     expect(spyAgentFunction).toHaveBeenCalledTimes(1);
     expect(spyAgentFunction.mock.calls[0][0]).toEqual({
@@ -172,17 +181,12 @@ describe('[Unit] test for AngetOpenAI', () => {
     });
   });
 
-  it('should throw an error when function not found', async () => {
+  it('should return null when function not found', async () => {
     const functionName = 'not-found';
 
-    try {
-      await agent.executeFunction(functionName, {});
+    const response = await agent.executeFunction(functionName, {});
 
-      expect().fail('should throw an error');
-    } catch (error: any) {
-      expect(error).toBeInstanceOf(Error);
-      expect(error.message).toInclude(functionName);
-    }
+    expect(response).toBeNull();
   });
 
   it.only('should treat a action', async () => {
