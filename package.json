@@ -1,7 +1,7 @@
 {
   "name": "s1-agents",
   "module": "src/index.ts",
-  "main": "dist/index.js",
+  "main": "dist/src/index.js",
   "type": "module",
   "author": "Gabriel Silvestre <gabriel.h.silvestre11@gmail.com>",
   "license": "MIT",
