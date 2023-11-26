@@ -22,10 +22,10 @@ export type RequiredFunctionOptions = {
 export type OptionalFunctionOptions = {
   log?: boolean;
 
-  /**
-   * The path to the schema file. Do not pass the file name, only the path to the directory.
-   */
-  schemaPath?: string;
+  schema?: {
+    path?: string;
+    output?: boolean;
+  };
 };
 
 export type FunctionOptions = RequiredFunctionOptions & OptionalFunctionOptions;

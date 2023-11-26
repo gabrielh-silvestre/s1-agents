@@ -17,12 +17,10 @@ export abstract class AgentFunction implements IFunction {
 
   protected readonly _props: OptionalFunctionOptions = {
     log: false,
-    schemaPath: path.resolve(
-      import.meta.dir,
-      '../..',
-      'dist',
-      'openai-functions'
-    ),
+    schema: {
+      output: false,
+      path: path.resolve(import.meta.dir, '../..', 'dist', 'openai-functions'),
+    },
   };
 
   static functions: AgentFunction[] = [];
@@ -65,16 +63,16 @@ export abstract class AgentFunction implements IFunction {
     this.schema = AgentFunction.mapOptionsToSchema(opts);
 
     this._props.log = opts.log ?? this._props.log;
-    this._props.schemaPath = opts.schemaPath ?? this._props.schemaPath;
+    this._props.schema = opts.schema ?? this._props.schema;
 
     AgentFunction.register(this);
   }
 
-  abstract execute(args: object[]): Promise<any>;
+  abstract execute(args: object): Promise<any>;
 
   async generateOpenaiSchema(): Promise<void> {
     const schemaPath = path.join(
-      this._props.schemaPath,
+      this._props.schema.path,
       `${this.name}.schema.json`
     );
     const schema = JSON.stringify(this.schema, null, 2);
