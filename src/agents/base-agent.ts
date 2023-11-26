@@ -4,7 +4,6 @@ import { Run } from 'openai/resources/beta/threads/runs/runs';
 
 import { Agent, AgentOptions, AgentProps } from '../types/agent';
 import { AgentFunction } from './function';
-import { GuardError } from '../errors/guard-error';
 import { InternalError } from 'src/errors';
 
 export class AgentOpenAI implements Agent {
@@ -38,12 +37,12 @@ export class AgentOpenAI implements Agent {
       'Functions must have unique names'
     );
 
-    const hasInvalidFunction = functions?.find(
+    const invalidFunction = functions?.find(
       (fn) => !(fn instanceof AgentFunction)
     );
     InternalError.guard(
-      !!hasInvalidFunction,
-      `Function "${hasInvalidFunction?.name}" is invalid`
+      !invalidFunction,
+      `Function "${invalidFunction?.name}" is invalid`
     );
   }
 

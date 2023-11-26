@@ -1,4 +1,5 @@
 import { mock } from 'bun:test';
+import { AgentFunction } from 'src/agents/function';
 import { deepClone } from 'src/utils';
 
 export const CREATE_AND_RUN_RESPONSE = {
@@ -75,9 +76,24 @@ export const mockOpenAI = () => ({
   },
 });
 
-export const mockFunction = () => ({
-  name: 'test',
-  description: 'test',
+export class MockFunction extends AgentFunction {
+  constructor() {
+    super({
+      name: 'test',
+      description: 'test',
+      parameters: {
+        type: 'object',
+        properties: {
+          name: { type: 'string', required: true, description: 'test' },
+          age: { type: 'number', required: true, description: 'test' },
+        },
+      },
+    });
+  }
 
-  execute: mock(async () => ({})),
-});
+  async execute(args: object[]): Promise<any> {
+    return mock(() => ({}));
+  }
+}
+
+export const mockFunction = () => new MockFunction();

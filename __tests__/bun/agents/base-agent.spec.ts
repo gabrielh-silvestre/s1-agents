@@ -11,6 +11,7 @@ import {
   mockOpenAIRun,
 } from '__tests__/mocks/openai-mock';
 import { Run } from 'openai/resources/beta/threads/runs/runs';
+import { AgentFunction } from 'src/agents/function';
 
 class TestAgent extends AgentOpenAI {
   // @ts-ignore
@@ -41,7 +42,7 @@ class TestAgent extends AgentOpenAI {
   }
 }
 
-describe('[Unit] test for AngetOpenAI', () => {
+describe('[Unit] test for AgentOpenAI', () => {
   let agent: TestAgent;
 
   const mockedOpenAI = mockOpenAI();
