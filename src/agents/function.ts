@@ -1,7 +1,6 @@
 import {
   FunctionOptions,
   IFunction,
-  OpenaiFunctionParameters,
   OpenaiFunctionSchema,
   OptionalFunctionOptions,
   RequiredFunctionOptions,

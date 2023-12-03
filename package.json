@@ -11,8 +11,9 @@
   ],
   "scripts": {
     "prebuild": "rm -rf dist",
-    "build": "bun run ./bun-build.config.js",
-    "postbuild": "tsc --emitDeclarationOnly",
+    "build": "rollup -c",
+    "prepublish": "npm run build",
+    "prepublishOnly": "bun test --coverage",
     "release": "standard-version",
     "release:patch": "npm run release --release-as patch",
     "release:minor": "npm run release --release-as minor",
@@ -20,15 +21,15 @@
   },
   "devDependencies": {
     "bun-types": "latest",
-    "standard-version": "^9.5.0",
-    "tsconfig-paths": "^4.2.0",
-    "typescript": "^5.3.2"
+    "rollup": "^4.6.1",
+    "rollup-plugin-typescript2": "^0.36.0",
+    "standard-version": "^9.5.0"
   },
   "peerDependencies": {
-    "typescript": "^5.0.0"
+    "typescript": "^5.3.2"
   },
   "dependencies": {
-    "@coaktion/aws": "^1.1.0",
+    "@aws-sdk/client-sns": "^3.465.0",
     "openai": "^4.20.0"
   }
 }

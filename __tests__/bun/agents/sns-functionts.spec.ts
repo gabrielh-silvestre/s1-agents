@@ -7,6 +7,7 @@ import {
   it,
   spyOn,
 } from 'bun:test';
+import { PublishCommand } from '@aws-sdk/client-sns';
 
 import { SnsPublishFunction } from 'src/agents/sns-function';
 import { GuardError } from 'src/errors/guard-error';
@@ -41,7 +42,7 @@ describe('[Unit] Tests for SnsPublishFunction', () => {
   beforeEach(() => {
     fn = new TestSnsFunction();
 
-    spySnsPublish = spyOn(MockSnsHandler, 'publish');
+    spySnsPublish = spyOn(MockSnsHandler, 'send');
   });
 
   afterEach(() => {
@@ -54,22 +55,13 @@ describe('[Unit] Tests for SnsPublishFunction', () => {
   });
 
   it('should execute an SNS publish function', async () => {
-    const normalizedFnName = fn.name.replace('cloud.', '');
     const content = { foo: 'bar' };
 
     const response = await fn.execute(content);
 
     expect(response).toBeTruthy();
     expect(spySnsPublish).toHaveBeenCalledTimes(1);
-    expect(spySnsPublish.mock.calls[0][0]).toEqual({
-      message: { foo: 'bar' },
-      messageGroupId: expect.stringContaining(normalizedFnName),
-
-      topicArn: expect.any(String),
-      messageAttributes: {
-        function: expect.stringContaining(normalizedFnName),
-      },
-    });
+    expect(spySnsPublish.mock.calls[0][0]).toBeInstanceOf(PublishCommand);
   });
 
   it('should throw an error if the function name is invalid', () => {

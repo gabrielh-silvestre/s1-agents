@@ -1,4 +1,4 @@
-import { SNSHandler } from '@coaktion/aws';
+import { SNSClient } from '@aws-sdk/client-sns';
 
 export type IFunction = {
   execute(args: object): Promise<any>;
@@ -80,7 +80,7 @@ export type SnsPublishFunctionOptions = FunctionOptions & {
     /**
      * The handler function for the SNS publish.
      */
-    handler: SNSHandler;
+    handler: SNSClient;
     /**
      * The ARN (Amazon Resource Name) of the SNS topic.
      */

@@ -1,11 +1,11 @@
-import { SNSHandler } from '@coaktion/aws';
+import { SNSClient, PublishCommand } from '@aws-sdk/client-sns';
 
 import { AgentFunction } from './function';
 import { InternalError } from '../errors';
 import { SnsPublishFunctionOptions } from '../types/function';
 
 export class SnsPublishFunction extends AgentFunction {
-  protected handler: SNSHandler;
+  protected handler: SNSClient;
   protected topicArn: string;
 
   private static guardSnsOptions({ sns }: SnsPublishFunctionOptions) {
@@ -34,18 +34,27 @@ export class SnsPublishFunction extends AgentFunction {
     return this.handler;
   }
 
+  private prepareMessage(args: any) {
+    const functionToExec = this.name.replace('cloud.', '');
+
+    return new PublishCommand({
+      Message: args,
+      TopicArn: this.topicArn,
+
+      MessageGroupId: `AgentFunction_${functionToExec}`,
+      MessageAttributes: {
+        function: {
+          DataType: 'String',
+          StringValue: functionToExec,
+        },
+      },
+    });
+  }
+
   async execute<R = object>(args: R): Promise<boolean> {
     try {
-      const functionToExec = this.name.replace('cloud.', '');
-
-      await this.sns.publish({
-        topicArn: this.topicArn,
-        message: args,
-        messageGroupId: `AgentFunction_${functionToExec}`,
-        messageAttributes: {
-          function: functionToExec,
-        },
-      });
+      const msg = this.prepareMessage(args);
+      await this.sns.send(msg);
 
       return true;
     } catch (error: any) {
