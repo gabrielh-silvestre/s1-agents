@@ -1,3 +1,5 @@
+import { SNSHandler } from '@coaktion/aws';
+
 export type IFunction = {
   execute(args: object): Promise<any>;
 };
@@ -66,4 +68,22 @@ export type OpenaiFunctionSchema = {
    * The required properties of the function.
    */
   required: string[];
+};
+
+/**
+ * Options for an SNS publish function.
+ *
+ * @argument name The name of the function. Should start with "cloud.".
+ */
+export type SnsPublishFunctionOptions = FunctionOptions & {
+  sns: {
+    /**
+     * The handler function for the SNS publish.
+     */
+    handler: SNSHandler;
+    /**
+     * The ARN (Amazon Resource Name) of the SNS topic.
+     */
+    topicArn: string;
+  };
 };

@@ -58,6 +58,10 @@ export abstract class AgentFunction implements IFunction {
     return AgentFunction.functions;
   }
 
+  static reset(): void {
+    AgentFunction.functions.length = 0;
+  }
+
   constructor(opts: FunctionOptions) {
     this.name = opts.name;
     this.schema = AgentFunction.mapOptionsToSchema(opts);
