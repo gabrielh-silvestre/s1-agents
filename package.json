@@ -28,6 +28,7 @@
     "typescript": "^5.0.0"
   },
   "dependencies": {
+    "@coaktion/aws": "^1.1.0",
     "openai": "^4.20.0"
   }
 }

@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it } from 'bun:test';
+import { afterEach, beforeEach, describe, expect, it } from 'bun:test';
 import fs from 'fs/promises';
 
 import { AgentFunction } from 'src/agents/function';
@@ -32,6 +32,10 @@ describe('[Unit] Tests for AgentFunction', () => {
     fn = new TestFunction();
   });
 
+  afterEach(() => {
+    TestFunction.reset();
+  });
+
   it('should create a function', () => {
     expect(fn).toBeDefined();
     expect(TestFunction.getFunctions()).toHaveLength(1);
@@ -42,10 +46,25 @@ describe('[Unit] Tests for AgentFunction', () => {
 
     try {
       await localFn.generateOpenaiSchema();
+      const file = Bun.file(`./${localFn.name}.schema.json`);
 
-      expect(
-        Bun.file(`./${localFn.name}.schema.json`).exists()
-      ).resolves.toBeTruthy();
+      const json = await file.json();
+      console.log('\n\n', json, '\n\n');
+
+      expect(file.exists()).resolves.toBeTruthy();
+      expect(file.json()).resolves.toMatchObject({
+        name: expect.any(String),
+        description: expect.any(String),
+
+        parameters: {
+          type: 'object',
+          properties: {
+            foo: { type: 'string' },
+          },
+
+          required: ['foo'],
+        },
+      });
     } finally {
       await fs.rm(`./${localFn.name}.schema.json`);
     }
