@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.3.0](https://github.com/gabrielh-silvestre/s1-agents/compare/v0.2.0...v0.3.0) (2023-12-03)
+
+
+### Features
+
+* implement function to dispatch SNS messages ([e11b288](https://github.com/gabrielh-silvestre/s1-agents/commit/e11b2888a1c528eef32c88d1ca64b636c828022e))
+
+
+### Bug Fixes
+
+* change builder from Bun to rollup ([6648b78](https://github.com/gabrielh-silvestre/s1-agents/commit/6648b78636f90b7e3f1bab5156ac981433e7469e))
+
 ## 0.2.0 (2023-11-26)
 
 
