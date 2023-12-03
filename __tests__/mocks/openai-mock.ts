@@ -97,3 +97,7 @@ export class MockFunction extends AgentFunction {
 }
 
 export const mockFunction = () => new MockFunction();
+
+export const MockSnsHandler = {
+  publish: mock(async () => ({})),
+};

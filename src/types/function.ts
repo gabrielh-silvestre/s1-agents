@@ -57,17 +57,17 @@ export type OpenaiFunctionSchema = {
     /**
      * The type of the parameter.
      */
-    type: string;
+    type: 'object';
     /**
      * The properties of the parameter.
      */
-    properties: OpenaiFunctionParameters;
-  };
+    properties: Record<string, Omit<FunctionParameters, 'required'>>;
 
-  /**
-   * The required properties of the function.
-   */
-  required: string[];
+    /**
+     * The required properties of the function.
+     */
+    required: string[];
+  };
 };
 
 /**

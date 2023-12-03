@@ -30,9 +30,8 @@ export abstract class AgentFunction implements IFunction {
   ): OpenaiFunctionSchema {
     const { name, description } = opts;
 
-    const properties: OpenaiFunctionParameters = {
-      type: 'object',
-      properties: opts.parameters.properties,
+    const properties: OpenaiFunctionSchema['parameters']['properties'] = {
+      ...opts.parameters.properties,
     };
 
     return {
@@ -42,11 +41,11 @@ export abstract class AgentFunction implements IFunction {
       parameters: {
         type: 'object',
         properties,
-      },
 
-      required: Object.entries(opts.parameters.properties)
-        .filter(([_, prop]) => prop.required)
-        .flatMap(([key]) => key),
+        required: Object.entries(opts.parameters.properties)
+          .filter(([_, prop]) => prop.required)
+          .flatMap(([key]) => key),
+      },
     };
   }
 

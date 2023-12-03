@@ -1,9 +1,10 @@
-import { Mock, beforeEach, describe, expect, it, spyOn } from 'bun:test';
+import { Mock, beforeEach, describe, expect, it, mock, spyOn } from 'bun:test';
 
 import { AgentOpenAI } from 'src/agents/base-agent';
 import { GuardError } from 'src/errors/guard-error';
 
 import {
+  MESSAGE_LIST_RESPONSE,
   OUTPUT_TOOL_RESPONSE,
   RETRIEVE_RUN_RESPONSE,
   mockFunction,
@@ -200,14 +201,33 @@ describe('[Unit] test for AgentOpenAI', () => {
     expect(executedCount).toEqual(OUTPUT_TOOL_RESPONSE.tool_calls.length);
   });
 
-  it('should complete a action', async () => {
+  it('should complete a action and return agent response', async () => {
     const response = await agent.complet('Olá mundo!');
 
     expect(response).toBeDefined();
-    expect(typeof response).toEqual('string');
+    expect(typeof response).toBe('string');
 
     expect(spyOpenaiCreateAndRun).toHaveBeenCalled();
     expect(spyOpenaiRetrieveRun).toHaveBeenCalled();
     expect(spyOpenaiListMessages).toHaveBeenCalled();
   });
+
+  it.each([
+    ['empty', ''],
+    ['null', null],
+    ['undefined', undefined],
+  ])(
+    'should complete a action and return null when response is %s',
+    async (_, val) => {
+      agent.recoverThreadMessage = mock(async () => val);
+
+      const response = await agent.complet('Olá mundo!');
+
+      expect(response).toBeNull();
+
+      expect(spyOpenaiCreateAndRun).toHaveBeenCalled();
+      expect(spyOpenaiRetrieveRun).toHaveBeenCalled();
+      expect(spyOpenaiListMessages).toHaveBeenCalled();
+    }
+  );
 });
