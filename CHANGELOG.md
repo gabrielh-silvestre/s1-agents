@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.3.1](https://github.com/gabrielh-silvestre/s1-agents/compare/v0.3.0...v0.3.1) (2023-12-04)
+
+
+### Bug Fixes
+
+* adjust function schema generation ([577ae47](https://github.com/gabrielh-silvestre/s1-agents/commit/577ae470bf93fb7abd08bbc88e2e1b7c5ae3b608))
+
 ## [0.3.0](https://github.com/gabrielh-silvestre/s1-agents/compare/v0.2.0...v0.3.0) (2023-12-03)
 
 
