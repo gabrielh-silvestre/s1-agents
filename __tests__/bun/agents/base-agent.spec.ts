@@ -42,7 +42,7 @@ class TestAgent extends AgentOpenAI {
   }
 }
 
-describe('[Unit] test for AgentOpenAI', () => {
+describe('[Unit] Tests for AgentOpenAI', () => {
   let agent: TestAgent;
 
   const mockedOpenAI = mockOpenAI();
