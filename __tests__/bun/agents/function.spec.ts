@@ -48,11 +48,8 @@ describe('[Unit] Tests for AgentFunction', () => {
       await localFn.generateOpenaiSchema();
       const file = Bun.file(`./${localFn.name}.schema.json`);
 
-      const json = await file.json();
-      console.log('\n\n', json, '\n\n');
-
       expect(file.exists()).resolves.toBeTruthy();
-      expect(file.json()).resolves.toMatchObject({
+      expect(file.json()).resolves.toStrictEqual({
         name: expect.any(String),
         description: expect.any(String),
 

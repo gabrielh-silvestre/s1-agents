@@ -29,9 +29,18 @@ export abstract class AgentFunction implements IFunction {
   ): OpenaiFunctionSchema {
     const { name, description } = opts;
 
-    const properties: OpenaiFunctionSchema['parameters']['properties'] = {
-      ...opts.parameters.properties,
-    };
+    const properties: OpenaiFunctionSchema['parameters']['properties'] =
+      Object.entries(opts.parameters.properties).reduce((acc, curr) => {
+        const [key, prop] = curr;
+
+        acc[key] = {
+          type: prop?.type,
+          description: prop?.description,
+          enum: prop?.enum,
+        };
+
+        return acc;
+      }, {});
 
     return {
       name,
