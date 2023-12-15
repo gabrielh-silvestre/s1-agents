@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.3.2](https://github.com/gabrielh-silvestre/s1-agents/compare/v0.3.1...v0.3.2) (2023-12-15)
+
+
+### Bug Fixes
+
+* update package.json and add rollup.config.js ([35c4c49](https://github.com/gabrielh-silvestre/s1-agents/commit/35c4c4927189d5490abd708c63980def5305dca1))
+
 ### [0.3.1](https://github.com/gabrielh-silvestre/s1-agents/compare/v0.3.0...v0.3.1) (2023-12-04)
 
 

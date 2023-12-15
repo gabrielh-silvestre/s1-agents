@@ -5,7 +5,7 @@
   "types": "dist/src/index.d.ts",
   "author": "Gabriel Silvestre <gabriel.h.silvestre11@gmail.com>",
   "license": "MIT",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "files": [
     "dist"
   ],
