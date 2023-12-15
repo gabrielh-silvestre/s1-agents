@@ -18,7 +18,7 @@ export abstract class AgentFunction implements IFunction {
     log: false,
     schema: {
       output: false,
-      path: path.resolve(import.meta.dir, '../..', 'dist', 'openai-functions'),
+      path: path.resolve(__dirname, '../..', 'dist', 'openai-functions'),
     },
   };
 
@@ -88,13 +88,16 @@ export abstract class AgentFunction implements IFunction {
     );
     const schema = JSON.stringify(this.schema, null, 2);
 
-    const directoryAlreadyExists = await Bun.file(schemaPath).exists();
+    const directoryAlreadyExists = await fs
+      .access(path.dirname(schemaPath))
+      .then(() => true)
+      .catch(() => false);
     if (!directoryAlreadyExists) {
       await fs.mkdir(path.dirname(schemaPath), { recursive: true });
     }
 
     if (this._props.log) console.log(`Writing schema to ${schemaPath}`);
 
-    await Bun.write(schemaPath, schema);
+    await fs.writeFile(schemaPath, schema);
   }
 }

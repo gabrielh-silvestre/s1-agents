@@ -1,8 +1,8 @@
 {
   "name": "s1-agents",
   "module": "src/index.ts",
-  "main": "dist/src/index.js",
-  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/src/index.d.ts",
   "author": "Gabriel Silvestre <gabriel.h.silvestre11@gmail.com>",
   "license": "MIT",
   "version": "0.3.1",
@@ -11,7 +11,7 @@
   ],
   "scripts": {
     "prebuild": "rm -rf dist",
-    "build": "rollup -c",
+    "build": "rollup -c rollup.config.js",
     "prepublish": "npm run build",
     "prepublishOnly": "bun test --coverage",
     "release": "standard-version",
