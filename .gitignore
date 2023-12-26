@@ -174,3 +174,5 @@ dist
 # Finder (MacOS) folder config
 .DS_Store
 
+# Local file tests
+**/*.t.ts

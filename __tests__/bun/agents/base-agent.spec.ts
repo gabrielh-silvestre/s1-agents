@@ -4,7 +4,7 @@ import { AgentOpenAI } from 'src/agents/base-agent';
 import { GuardError } from 'src/errors/guard-error';
 
 import {
-  MESSAGE_LIST_RESPONSE,
+  CREATE_AND_RUN_RESPONSE,
   OUTPUT_TOOL_RESPONSE,
   RETRIEVE_RUN_RESPONSE,
   mockFunction,
@@ -27,8 +27,8 @@ class TestAgent extends AgentOpenAI {
   }
 
   // @ts-ignore
-  public async poolingRun(threadId: string, runId: string): Promise<Run> {
-    return super.poolingRun(threadId, runId);
+  public async poolingRun(runId: string): Promise<Run> {
+    return super.poolingRun(runId);
   }
 
   // @ts-ignore
@@ -37,10 +37,17 @@ class TestAgent extends AgentOpenAI {
   }
 
   // @ts-ignore
-  public async recoverThreadMessage(threadId: string): Promise<string> {
-    return super.recoverThreadMessage(threadId);
+  public async updateThread(content: string): Promise<Run> {
+    return super.updateThread(content);
+  }
+
+  // @ts-ignore
+  public async recoverThreadMessage(): Promise<string> {
+    return super.recoverThreadMessage();
   }
 }
+
+const { id: runId, thread_id: threadId } = CREATE_AND_RUN_RESPONSE;
 
 describe('[Unit] Tests for AgentOpenAI', () => {
   let agent: TestAgent;
@@ -51,7 +58,10 @@ describe('[Unit] Tests for AgentOpenAI', () => {
 
   let spyOpenaiCreateAndRun: Mock<any>;
   let spyOpenaiRetrieveRun: Mock<any>;
+  let spyOpenaiCreateRun: Mock<any>;
+
   let spyOpenaiListMessages: Mock<any>;
+  let spyOpenaiCreateMessage: Mock<any>;
 
   let spyAgentFunction: Mock<any>;
 
@@ -64,13 +74,17 @@ describe('[Unit] Tests for AgentOpenAI', () => {
 
     spyOpenaiCreateAndRun = spyOn(agent.openai.beta.threads, 'createAndRun');
     spyOpenaiRetrieveRun = spyOn(agent.openai.beta.threads.runs, 'retrieve');
+    spyOpenaiCreateRun = spyOn(agent.openai.beta.threads.runs, 'create');
+
     spyOpenaiListMessages = spyOn(agent.openai.beta.threads.messages, 'list');
+    spyOpenaiCreateMessage = spyOn(agent.openai.beta.threads.messages, 'create');
 
     spyAgentFunction = spyOn(mockedFunction, 'execute');
   });
 
   it('should create an agent', () => {
     expect(agent).toBeDefined();
+    expect(agent.threadId).toBeNull();
   });
 
   it('should return the openai instance', () => {
@@ -110,6 +124,7 @@ describe('[Unit] Tests for AgentOpenAI', () => {
     const response = await agent.createAndRunThread(content);
 
     expect(response).toBeDefined();
+    expect(agent.threadId).toEqual(threadId);
 
     expect(spyOpenaiCreateAndRun).toHaveBeenCalledTimes(1);
     expect(spyOpenaiCreateAndRun.mock.calls[0][0]).toEqual({
@@ -118,11 +133,26 @@ describe('[Unit] Tests for AgentOpenAI', () => {
     });
   });
 
-  it('should pooling a run', async () => {
-    const threadId = 'thread-123';
-    const runId = 'run-123';
+  it('should update a thread with new messages', async () => {
+    // @ts-ignore | Thread ID starts as "null" and need to be setted
+    agent.threadId = threadId;
+    const content = 'test';
 
-    await agent.poolingRun(threadId, runId);
+    const response = await agent.updateThread(content);
+
+    expect(response).toBeDefined();
+    expect(spyOpenaiCreateMessage).toHaveBeenCalledTimes(1);
+    expect(spyOpenaiCreateMessage.mock.calls[0]).toEqual([
+      threadId,
+      { role: 'user', content },
+    ]);
+  });
+
+  it('should pooling a run', async () => {
+    // @ts-ignore | Thread ID starts as "null" and need to be setted
+    agent.threadId = threadId;
+
+    await agent.poolingRun(runId);
 
     expect(spyOpenaiRetrieveRun).toHaveBeenCalledTimes(1);
     expect(spyOpenaiRetrieveRun.mock.calls[0]).toEqual([threadId, runId]);
@@ -132,11 +162,8 @@ describe('[Unit] Tests for AgentOpenAI', () => {
     RETRIEVE_RUN_RESPONSE.status = 'failed';
     RETRIEVE_RUN_RESPONSE.last_error = { message: 'test' };
 
-    const threadId = 'thread-123';
-    const runId = 'run-123';
-
     try {
-      await agent.poolingRun(threadId, runId);
+      await agent.poolingRun(runId);
 
       expect().fail('should throw an error');
     } catch (error: any) {
@@ -149,12 +176,12 @@ describe('[Unit] Tests for AgentOpenAI', () => {
   });
 
   it('should recover a thread message', async () => {
-    const threadId = 'thread-123';
+    // @ts-ignore | Thread ID starts as "null" and need to be setted
+    agent.threadId = threadId;
 
-    const response = await agent.recoverThreadMessage(threadId);
+    const response = await agent.recoverThreadMessage();
 
     expect(response).toBeDefined();
-
     expect(spyOpenaiListMessages).toHaveBeenCalledTimes(1);
     expect(spyOpenaiListMessages.mock.calls[0][0]).toEqual(threadId);
   });
