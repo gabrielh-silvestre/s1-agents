@@ -7,6 +7,8 @@ import { AgentFunction } from './function';
 import { InternalError } from 'src/errors';
 
 export class AgentOpenAI implements Agent {
+  private currThreadId: string | null = null;
+
   protected readonly _props: AgentProps = {
     agentId: '',
     openai: new OpenAI(),
@@ -71,6 +73,32 @@ export class AgentOpenAI implements Agent {
     return this._props;
   }
 
+  /**
+   * @description
+   * Get the current thread ID
+   * For default, the thread ID is stored in the instance and only persists while the instance is alive. (while it is in memory)
+   * 
+   * If you want to persist the thread ID, you can override this getter and setter.
+   * 
+   * @returns {string | null}
+   */
+  get threadId(): string | null {
+    return this.currThreadId;
+  }
+
+  /**
+   * @description
+   * Set the current thread ID
+   * For default, the thread ID is stored in the instance and only persists while the instance is alive. (while it is in memory)
+   * 
+   * If you want to persist the thread ID in other place, you can override this getter and setter.
+   * 
+   * @param {string} id
+   */
+  protected set threadId(id: string) {
+    this.currThreadId = id;
+  }
+
   protected async *treatAction(run: Run) {
     const tools = run.required_action?.submit_tool_outputs.tool_calls ?? [];
 
@@ -89,9 +117,9 @@ export class AgentOpenAI implements Agent {
     return await fn.execute(args);
   }
 
-  protected async poolingRun(threadId: string, runId: string): Promise<Run> {
+  protected async poolingRun(runId: string): Promise<Run> {
     const response = await this.openai.beta.threads.runs.retrieve(
-      threadId,
+      this.threadId,
       runId
     );
 
@@ -102,7 +130,7 @@ export class AgentOpenAI implements Agent {
         toolOutputs.push(result);
       }
 
-      await this.openai.beta.threads.runs.submitToolOutputs(threadId, runId, {
+      await this.openai.beta.threads.runs.submitToolOutputs(this.threadId, runId, {
         tool_outputs: toolOutputs,
       });
     }
@@ -113,7 +141,7 @@ export class AgentOpenAI implements Agent {
       response.status === 'failed';
     if (!isFinished) {
       await sleep(this._props.poolingInterval);
-      return await this.poolingRun(threadId, runId);
+      return await this.poolingRun(runId);
     }
 
     const hadSuccess = response.status === 'completed';
@@ -123,16 +151,31 @@ export class AgentOpenAI implements Agent {
   }
 
   protected async createAndRunThread(content: string) {
-    return await this.openai.beta.threads.createAndRun({
+    const response = await this.openai.beta.threads.createAndRun({
       assistant_id: this._props.agentId,
       thread: {
         messages: [{ role: 'user', content }],
       },
     });
+
+    this.threadId = response.thread_id;
+
+    return response;
   }
 
-  protected async recoverThreadMessage(threadId: string): Promise<string> {
-    const response = await this.openai.beta.threads.messages.list(threadId);
+  protected async updateThread(content: string) {
+    await this.openai.beta.threads.messages.create(
+      this.threadId,
+      { role: 'user', content }
+    );
+
+    return await this.openai.beta.threads.runs.create(this.threadId, {
+      assistant_id: this._props.agentId,
+    });
+  }
+
+  protected async recoverThreadMessage(): Promise<string> {
+    const response = await this.openai.beta.threads.messages.list(this.threadId);
 
     return response.data.flatMap((r) =>
       r.content?.map((c) => (c as any)?.text?.value)
@@ -140,10 +183,12 @@ export class AgentOpenAI implements Agent {
   }
 
   async complet(msg: string): Promise<string | null> {
-    const { thread_id, id } = await this.createAndRunThread(msg);
+    const { id } = this.currThreadId
+      ? await this.updateThread(msg)
+      : await this.createAndRunThread(msg);
 
-    const completedRun = await this.poolingRun(thread_id, id);
-    const response = await this.recoverThreadMessage(completedRun.thread_id);
+    await this.poolingRun(id);
+    const response = await this.recoverThreadMessage();
 
     if (!response) return null;
     return response;

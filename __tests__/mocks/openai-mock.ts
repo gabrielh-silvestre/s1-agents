@@ -64,9 +64,11 @@ export const mockOpenAI = () => ({
         list: mock(() =>
           deepClone<IMessageListResponse>(MESSAGE_LIST_RESPONSE)
         ),
+        create: mock(() => ({})),
       },
 
       runs: {
+        create: mock(() => deepClone<IRetrieveRunResponse>(CREATE_AND_RUN_RESPONSE)),
         retrieve: mock(() =>
           deepClone<IRetrieveRunResponse>(RETRIEVE_RUN_RESPONSE)
         ),
