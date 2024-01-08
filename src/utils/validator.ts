@@ -1,9 +1,9 @@
-import { GuardError } from './guard-error';
+import { GuardError } from '../errors/guard-error';
 
 /**
  * Represents an internal error of the library.
  */
-export class InternalError {
+export class Validator {
   /**
    * Guards against a specified condition and throws a `GuardError` if the condition is not met.
    * @param condition - The condition to be checked.
