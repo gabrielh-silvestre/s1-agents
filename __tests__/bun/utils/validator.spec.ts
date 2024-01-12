@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'bun:test';
 import { GuardError } from 'src/errors/guard-error';
-import { InternalError } from 'src/errors';
+import { Validator } from 'src/utils/validator';
 
-describe('[Unit] Tests for InternalError', () => {
+describe('[Unit] Tests for Validator', () => {
   it.each([
     ['condition is falsy', false],
     ['condition is null', null],
@@ -11,7 +11,7 @@ describe('[Unit] Tests for InternalError', () => {
     ['condition is empty', ''],
   ])('should throw an error when "%s"', (_, arg) => {
     try {
-      InternalError.guard(arg, 'message');
+      Validator.guard(arg, 'message');
       expect().fail('should throw an error');
     } catch (error) {
       expect(error).toBeInstanceOf(GuardError);
@@ -23,7 +23,7 @@ describe('[Unit] Tests for InternalError', () => {
     ['undefined', undefined],
   ])('should throw an error when value is %s', (_, arg) => {
     try {
-      InternalError.notNull(arg, 'message');
+      Validator.notNull(arg, 'message');
       expect().fail('should throw an error');
     } catch (error) {
       expect(error).toBeInstanceOf(GuardError);
@@ -35,7 +35,7 @@ describe('[Unit] Tests for InternalError', () => {
     ['blank', ' '],
   ])('should throw an error when value is %s', (_, arg) => {
     try {
-      InternalError.notEmpty(arg, 'message');
+      Validator.notEmpty(arg, 'message');
       expect().fail('should throw an error');
     } catch (error) {
       expect(error).toBeInstanceOf(GuardError);
@@ -44,7 +44,7 @@ describe('[Unit] Tests for InternalError', () => {
 
   it('should throw an error when value array is empty', () => {
     try {
-      InternalError.notEmptyArray([], 'message');
+      Validator.notEmptyArray([], 'message');
       expect().fail('should throw an error');
     } catch (error) {
       expect(error).toBeInstanceOf(GuardError);
@@ -53,7 +53,7 @@ describe('[Unit] Tests for InternalError', () => {
 
   it('should throw an error when value object is empty', () => {
     try {
-      InternalError.notEmptyObject({}, 'message');
+      Validator.notEmptyObject({}, 'message');
       expect().fail('should throw an error');
     } catch (error) {
       expect(error).toBeInstanceOf(GuardError);
@@ -65,7 +65,7 @@ describe('[Unit] Tests for InternalError', () => {
     ['string is duplicated', ['a', 'a']],
   ])('should throw an error when %s', (_, arg) => {
     try {
-      InternalError.duplicatedArray<any>(arg, 'message');
+      Validator.duplicatedArray<any>(arg, 'message');
       expect().fail('should throw an error');
     } catch (error) {
       expect(error).toBeInstanceOf(GuardError);

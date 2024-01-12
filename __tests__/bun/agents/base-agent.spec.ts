@@ -8,7 +8,6 @@ import {
   OUTPUT_TOOL_RESPONSE,
   RETRIEVE_RUN_RESPONSE,
   mockFunction,
-  mockOpenAI,
   mockOpenAIRun,
 } from '__tests__/mocks/openai-mock';
 import { Run } from 'openai/resources/beta/threads/runs/runs';
@@ -52,7 +51,6 @@ const { id: runId, thread_id: threadId } = CREATE_AND_RUN_RESPONSE;
 describe('[Unit] Tests for AgentOpenAI', () => {
   let agent: TestAgent;
 
-  const mockedOpenAI = mockOpenAI();
   const mockedOpenAIRun = mockOpenAIRun();
   const mockedFunction = mockFunction();
 
@@ -68,7 +66,6 @@ describe('[Unit] Tests for AgentOpenAI', () => {
   beforeEach(() => {
     agent = new TestAgent({
       agentId: 'agent-123',
-      openai: mockedOpenAI as any,
       functions: [],
     });
 
@@ -95,7 +92,6 @@ describe('[Unit] Tests for AgentOpenAI', () => {
     ['agentId', 'empty', ''],
     ['agentId', 'null', null],
     ['agentId', 'undefined', undefined],
-    ['openai', 'empty', {}],
     ['poolingInterval', 'zero', 0],
     [
       'functions',
@@ -106,7 +102,6 @@ describe('[Unit] Tests for AgentOpenAI', () => {
     try {
       const options = {
         agentId: 'agent-123',
-        openai: mockOpenAI() as any,
         [prop]: val,
       };
 
@@ -189,7 +184,6 @@ describe('[Unit] Tests for AgentOpenAI', () => {
   it('should execute a function', async () => {
     const localAgent = new TestAgent({
       agentId: 'agent-123',
-      openai: mockedOpenAI as any,
       functions: [mockedFunction],
     });
 
@@ -254,7 +248,6 @@ describe('[Unit] Tests for AgentOpenAI', () => {
 
       expect(spyOpenaiCreateAndRun).toHaveBeenCalled();
       expect(spyOpenaiRetrieveRun).toHaveBeenCalled();
-      expect(spyOpenaiListMessages).toHaveBeenCalled();
     }
   );
 });

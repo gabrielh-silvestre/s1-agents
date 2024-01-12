@@ -14,6 +14,8 @@ import { GuardError } from 'src/errors/guard-error';
 
 import { MockSnsHandler } from '__tests__/mocks/openai-mock';
 
+const TOPIC_ARN = 'arn:aws:sns:us-east-1:000000000000:TestTopic';
+
 class TestSnsFunction extends SnsPublishFunction {
   constructor() {
     super({
@@ -26,10 +28,7 @@ class TestSnsFunction extends SnsPublishFunction {
         },
       },
 
-      sns: {
-        handler: MockSnsHandler as any,
-        topicArn: 'arn:aws:sns:us-east-1:000000000000:TestTopic',
-      },
+      sns: { topicArn: TOPIC_ARN },
     });
   }
 }
@@ -75,7 +74,6 @@ describe('[Unit] Tests for SnsPublishFunction', () => {
         },
 
         sns: {
-          handler: MockSnsHandler as any,
           topicArn: 'arn:aws:sns:us-east-1:000000000000:TestTopic',
         },
       });
@@ -90,9 +88,6 @@ describe('[Unit] Tests for SnsPublishFunction', () => {
     ['sns', 'empty', {}],
     ['sns', 'null', null],
     ['sns', 'undefined', undefined],
-    ['sns.handler', 'empty', { handler: {} }],
-    ['sns.handler', 'null', { handler: null }],
-    ['sns.handler', 'undefined', { handler: undefined }],
     ['sns.topicArn', 'empty', { topicArn: '' }],
     ['sns.topicArn', 'null', { topicArn: null }],
     ['sns.topicArn', 'undefined', { topicArn: undefined }],

@@ -1,7 +1,7 @@
 import { SNSClient, PublishCommand } from '@aws-sdk/client-sns';
 
 import { AgentFunction } from './function';
-import { InternalError } from '../errors';
+import { Validator } from '../utils/validator';
 import { SnsPublishFunctionOptions } from '../types/function';
 
 export class SnsPublishFunction extends AgentFunction {
@@ -9,12 +9,11 @@ export class SnsPublishFunction extends AgentFunction {
   protected topicArn: string;
 
   private static guardSnsOptions({ sns }: SnsPublishFunctionOptions) {
-    InternalError.notEmptyObject(sns?.handler, 'SNS handler is required');
-    InternalError.notEmpty(sns?.topicArn, 'SNS topic ARN is required');
+    Validator.notEmpty(sns?.topicArn, 'SNS topic ARN is required');
   }
 
   private static guardFunctionName(name: string) {
-    InternalError.guard(
+    Validator.guard(
       name.startsWith('cloud.'),
       'Function name must start with "cloud."'
     );
@@ -26,7 +25,7 @@ export class SnsPublishFunction extends AgentFunction {
 
     super(opts);
 
-    this.handler = opts.sns.handler;
+    this.handler = new SNSClient(opts.sns.client);
     this.topicArn = opts.sns.topicArn;
   }
 

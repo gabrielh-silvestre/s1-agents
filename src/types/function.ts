@@ -1,4 +1,4 @@
-import { SNSClient } from '@aws-sdk/client-sns';
+import { SNSClientConfig } from '@aws-sdk/client-sns';
 
 export type IFunction = {
   execute(args: object): Promise<any>;
@@ -78,9 +78,10 @@ export type OpenaiFunctionSchema = {
 export type SnsPublishFunctionOptions = FunctionOptions & {
   sns: {
     /**
-     * The handler function for the SNS publish.
+     * The SNS client configuration.
+     * @see https://docs.aws.amazon.com/AWSJavaScriptSDK/v3/latest/clients/client-sns/interfaces/snsclientconfig.html
      */
-    handler: SNSClient;
+    client?: SNSClientConfig;
     /**
      * The ARN (Amazon Resource Name) of the SNS topic.
      */

@@ -4,7 +4,7 @@ import { Run } from 'openai/resources/beta/threads/runs/runs';
 
 import { Agent, AgentOptions, AgentProps } from '../types/agent';
 import { AgentFunction } from './function';
-import { InternalError } from 'src/errors';
+import { Validator } from '../utils/validator';
 
 export class AgentOpenAI implements Agent {
   private currThreadId: string | null = null;
@@ -20,11 +20,11 @@ export class AgentOpenAI implements Agent {
   private static guardProps(props: AgentProps) {
     const { agentId, poolingInterval } = props;
 
-    InternalError.notEmpty(agentId, 'Agent ID is required');
-    InternalError.notEmptyObject(props.openai, 'OpenAI instance is required');
+    Validator.notEmpty(agentId, 'Agent ID is required');
+    Validator.notEmptyObject(props.openai, 'OpenAI instance is required');
 
     const isPoolingIntervalValid = !!poolingInterval && poolingInterval > 500;
-    InternalError.guard(
+    Validator.guard(
       isPoolingIntervalValid,
       'Pooling interval must be greater than 500ms'
     );
@@ -34,7 +34,7 @@ export class AgentOpenAI implements Agent {
     const hasAnyFunction = functions?.length > 0;
     if (!hasAnyFunction) return;
 
-    InternalError.duplicatedArray(
+    Validator.duplicatedArray(
       functions?.map((fn) => fn.name),
       'Functions must have unique names'
     );
@@ -42,7 +42,7 @@ export class AgentOpenAI implements Agent {
     const invalidFunction = functions?.find(
       (fn) => !(fn instanceof AgentFunction)
     );
-    InternalError.guard(
+    Validator.guard(
       !invalidFunction,
       `Function "${invalidFunction?.name}" is invalid`
     );
@@ -53,7 +53,7 @@ export class AgentOpenAI implements Agent {
     this._props.log = opts.log ?? this._props.log;
     this._props.poolingInterval =
       opts.poolingInterval ?? this._props.poolingInterval;
-    this._props.openai = opts.openai ?? this._props.openai;
+    this._props.openai = new OpenAI(opts.openai) ?? this._props.openai;
 
     this.guardFunctions(opts);
 
